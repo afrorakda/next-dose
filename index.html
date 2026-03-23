@@ -3,166 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <title>Next Dose</title>
+    
+    <link rel="apple-touch-icon" href="image_18.png">
+    
     <style>
-        body { font-family: -apple-system, sans-serif; background-color: #fff; margin: 0; display: flex; justify-content: center; color: #111; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-        .container { width: 100%; max-width: 400px; padding: 25px 20px; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; height: 100vh; justify-content: space-between; }
-        
+        body { font-family: -apple-system, sans-serif; background: #fff; color: #111; margin: 0; display: flex; justify-content: center; -webkit-font-smoothing: antialiased; }
+        .container { width: 100%; max-width: 400px; padding: 25px 20px; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; min-height: 100vh; justify-content: space-between; }
         h1 { font-size: 2rem; font-weight: 800; margin: 0; letter-spacing: -1px; }
-        .subtitle { font-size: 0.9rem; color: #666; margin: 5px 0 20px; font-weight: 500; }
-        
-        .now-btn { 
-            width: 100%; padding: 20px; font-size: 1.2rem; font-weight: 800; 
-            background: #111; color: #fff; border: none; border-radius: 15px; 
-            cursor: pointer; margin-bottom: 25px; transition: opacity 0.2s;
-        }
-
+        .subtitle { font-size: 0.9rem; color: #666; margin: 5px 0 25px; }
+        .now-btn { width: 100%; padding: 20px; font-size: 1.2rem; font-weight: 800; background: #111; color: #fff; border: none; border-radius: 15px; cursor: pointer; margin-bottom: 30px; }
         .label { font-size: 0.75rem; font-weight: 700; color: #999; text-transform: uppercase; margin-bottom: 10px; text-align: left; }
-        
-        /* Interval Grid & Input */
-        .interval-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
-        .int-btn { 
-            padding: 15px; font-size: 1rem; font-weight: 700; background: #fff; 
-            border: 1px solid #eee; border-radius: 15px; cursor: pointer; color: #444;
-        }
-        .int-btn.active { background: #111; color: #fff; border-color: #111; }
-
-        .input-wrapper { 
-            display: flex; align-items: center; justify-content: center; 
-            background: #fff; border: 1px solid #eee; border-radius: 15px; height: 52px; margin-bottom: 20px;
-        }
-        .input-wrapper.active { background: #111; border-color: #111; color: #fff; }
-        .int-input { 
-            width: 40px; border: none; outline: none; background: transparent; 
-            font-size: 1rem; font-weight: 700; color: inherit; text-align: right; -webkit-appearance: none;
-        }
-        .int-unit { font-size: 0.9rem; font-weight: 700; margin-left: 4px; }
-
-        /* Result Box */
-        .result-box { 
-            background: #fafafa; border-radius: 15px; padding: 25px 15px; margin-bottom: 15px;
-            display: flex; flex-direction: column; justify-content: center; border: 1px solid #f0f0f0;
-        }
-        .res-label { font-size: 0.75rem; color: #999; margin-bottom: 5px; font-weight: 700; text-transform: uppercase; }
-        .res-time { font-size: 3.5rem; font-weight: 800; color: #111; line-height: 1; letter-spacing: -2px; }
-
-        .clear-btn { 
-            width: 100%; padding: 12px; background: transparent; color: #bbb; 
-            border: none; font-size: 0.8rem; font-weight: 600; cursor: pointer; margin-bottom: 10px;
-        }
-
-        /* Footer & Buttons */
-        .footer-group { display: flex; flex-direction: column; align-items: center; gap: 12px; border-top: 1px solid #f0f0f0; padding-top: 20px; }
-        .kofi-btn { background: #111; color: #fff; padding: 12px 24px; border-radius: 15px; text-decoration: none; font-weight: bold; font-size: 13px; }
-        .install-btn { background: #f0f0f0; color: #666; padding: 10px 20px; border-radius: 15px; border: none; cursor: pointer; font-size: 12px; font-weight: 700; }
-        footer { font-size: 10px; color: #aaa; line-height: 1.4; padding-bottom: 15px; }
-
-        /* Modal */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
+        .btn { padding: 15px 0; font-size: 1rem; font-weight: 700; background: #fff; border: 1px solid #eee; border-radius: 15px; cursor: pointer; color: #444; }
+        .btn.active { background: #111; color: #fff; border-color: #111; }
+        .custom-in { width: 100%; border: none; outline: none; background: transparent; font: inherit; text-align: center; color: inherit; padding: 0; }
+        .res-box { background: #fafafa; border-radius: 15px; padding: 30px 15px; border: 1px solid #f0f0f0; margin-bottom: 10px; }
+        .res-time { font-size: 3.5rem; font-weight: 800; letter-spacing: -2px; line-height: 1; }
+        .res-ampm { font-size: 1.2rem; margin-left: 5px; color: #666; vertical-align: bottom; }
+        .clear { width: 100%; padding: 15px; background: none; border: none; color: #bbb; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+        .footer-group { border-top: 1px solid #f0f0f0; padding-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .kofi { background: #111; color: #fff; padding: 12px 24px; border-radius: 15px; text-decoration: none; font-weight: bold; font-size: 13px; }
+        .inst-btn { background: #f0f0f0; color: #666; padding: 10px 20px; border-radius: 15px; border: none; font-size: 12px; font-weight: 700; cursor: pointer; }
+        footer { font-size: 10px; color: #aaa; line-height: 1.4; padding-bottom: 20px; }
         #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: #fff; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; position: relative; }
-        .close-x { position: absolute; top: 12px; right: 18px; font-size: 22px; cursor: pointer; color: #ccc; }
+        .m-content { background: #fff; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; position: relative; }
+        .m-box { background: #f8f8f8; padding: 15px; border-radius: 15px; text-align: left; margin-top: 15px; font-size: 0.9rem; line-height: 1.6; }
+        .close { position: absolute; top: 12px; right: 18px; font-size: 22px; cursor: pointer; color: #ccc; }
     </style>
 </head>
 <body>
-
 <div class="container">
     <div>
         <h1>Next Dose</h1>
         <p class="subtitle">Forget the math, just take your meds.</p>
-        
-        <button class="now-btn" onclick="setNow()">I TOOK IT NOW</button>
-
-        <div class="label">Quick Select Interval</div>
-        <div class="interval-grid">
-            <button class="int-btn" onclick="setInt(4, this)">4 Hours</button>
-            <button class="int-btn active" id="defaultBtn" onclick="setInt(6, this)">6 Hours</button>
+        <button class="now-btn" onclick="setNow()">START NOW</button>
+        <div class="label">Select Interval (Hours)</div>
+        <div class="grid">
+            <button class="btn" onclick="setInt(2, this)">2h</button>
+            <button class="btn" onclick="setInt(4, this)">4h</button>
+            <button class="btn active" id="def" onclick="setInt(6, this)">6h</button>
+            <button class="btn" onclick="setInt(8, this)">8h</button>
+            <button class="btn" id="cW" onclick="focusIn()">
+                <input type="number" id="cI" class="custom-in" placeholder="Custom" oninput="hIn(this)" inputmode="numeric">
+            </button>
         </div>
-
-        <div class="label">Custom Interval</div>
-        <div class="input-wrapper" id="customWrapper" onclick="focusInput()">
-            <input type="number" id="customInt" class="int-input" placeholder="3" oninput="handleInput(this)" inputmode="numeric">
-            <span class="int-unit">Hours later</span>
+        <div class="res-box">
+            <div class="label" style="text-align:center;margin-bottom:5px">Next Dose At</div>
+            <div id="nT" class="res-time">--:--<span class="res-ampm" id="ap"></span></div>
         </div>
-
-        <div class="result-box">
-            <div class="res-label">Next Dose At</div>
-            <div id="nextTime" class="res-time">--:--</div>
-        </div>
-
-        <button class="clear-btn" onclick="reset()">Reset All</button>
+        <button class="clear" onclick="reset()">Reset All</button>
     </div>
-
     <div class="footer-group">
-        <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕ Support me on Ko-fi</a>
-        <button class="install-btn" onclick="showModal()">Add to Home Screen</button>
-        <footer>
-            No login / No tracking / No ads / Browser only<br>
-            Privacy Policy<br>
-            afrorakda © 2026
-        </footer>
+        <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi">☕ Support me on Ko-fi</a>
+        <button class="inst-btn" onclick="sM()">Add to Home Screen</button>
+        <footer>No login / No tracking / No ads / Browser only<br>Privacy Policy<br>afrorakda © 2026</footer>
     </div>
 </div>
-
-<div id="modal">
-    <div class="modal-content">
-        <span class="close-x" onclick="closeModal()">&times;</span>
-        <strong>📱 Install</strong><br><br>
-        <p><strong>🍏 iPhone (Safari):</strong><br>Tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.</p>
-        <p><strong>🤖 Android (Chrome):</strong><br>Tap <strong>Menu (⋮)</strong>, then <strong>Add to home screen</strong>.</p>
+<div id="modal" onclick="cM()"><div class="m-content" onclick="event.stopPropagation()">
+    <span class="close" onclick="cM()">&times;</span>
+    <strong>📱 Install</strong><br><span style="font-size:0.8rem;color:#999">Add to your home screen.</span>
+    <div class="m-box">
+        🍏 <strong>iPhone (Safari):</strong><br>Tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.<br><br>
+        🤖 <strong>Android (Chrome):</strong><br>Tap <strong>Menu (⋮)</strong>, then <strong>Add to home screen</strong>.
     </div>
-</div>
-
+</div></div>
 <script>
-    let interval = 6;
-    let startTime = null;
-    const wrapper = document.getElementById('customWrapper');
-    const input = document.getElementById('customInt');
-
-    function setNow() {
-        startTime = new Date();
-        calculate();
+    let iv = 6, sT = null;
+    const cI = document.getElementById('cI'), cW = document.getElementById('cW');
+    function setNow() { sT = new Date(); calc(); }
+    function setInt(h, b) {
+        iv = h; cI.value = "";
+        document.querySelectorAll('.btn').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        if (sT) calc();
     }
-
-    function setInt(h, btn) {
-        interval = h;
-        input.value = "";
-        document.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
-        wrapper.classList.remove('active');
-        btn.classList.add('active');
-        if (startTime) calculate();
+    function focusIn() { cI.focus(); setInt(parseFloat(cI.value)||0, cW); }
+    function hIn(e) { iv = parseFloat(e.value) || 0; if (sT) calc(); }
+    function calc() {
+        if (!sT || iv <= 0) return;
+        const n = new Date(sT.getTime() + (iv * 3600000));
+        let h = n.getHours(), m = String(n.getMinutes()).padStart(2, '0'), ap = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        document.getElementById('nT').firstChild.textContent = h + ":" + m;
+        document.getElementById('ap').innerText = ap;
     }
-
-    function focusInput() {
-        input.focus();
-        document.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
-        wrapper.classList.add('active');
-    }
-
-    function handleInput(el) {
-        interval = parseFloat(el.value) || 0;
-        if (startTime) calculate();
-    }
-
-    function calculate() {
-        if (!startTime || interval <= 0) return;
-        const next = new Date(startTime.getTime() + (interval * 60 * 60 * 1000));
-        const hh = String(next.getHours()).padStart(2, '0');
-        const mm = String(next.getMinutes()).padStart(2, '0');
-        document.getElementById('nextTime').innerText = hh + ":" + mm;
-    }
-
-    function reset() {
-        startTime = null;
-        input.value = "";
-        document.getElementById('nextTime').innerText = "--:--";
-        setInt(6, document.getElementById('defaultBtn'));
-    }
-
-    function showModal() { document.getElementById('modal').style.display = 'flex'; }
-    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    function reset() { sT = null; cI.value = ""; document.getElementById('nT').firstChild.textContent = "--:--"; document.getElementById('ap').innerText = ""; setInt(6, document.getElementById('def')); }
+    function sM() { document.getElementById('modal').style.display = 'flex'; }
+    function cM() { document.getElementById('modal').style.display = 'none'; }
 </script>
-
 </body>
 </html>
