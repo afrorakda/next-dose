@@ -7,33 +7,42 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <title>Next Dose</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background-color: #fff; margin: 0; display: flex; justify-content: center; color: #111; -webkit-font-smoothing: antialiased; }
+        body { font-family: -apple-system, sans-serif; background-color: #fff; margin: 0; display: flex; justify-content: center; color: #111; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
         .container { width: 100%; max-width: 400px; padding: 25px 20px; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; height: 100vh; justify-content: space-between; }
         
         h1 { font-size: 2rem; font-weight: 800; margin: 0; letter-spacing: -1px; }
         .subtitle { font-size: 0.9rem; color: #666; margin: 5px 0 20px; font-weight: 500; }
         
-        /* Main Action Button */
         .now-btn { 
             width: 100%; padding: 20px; font-size: 1.2rem; font-weight: 800; 
             background: #111; color: #fff; border: none; border-radius: 15px; 
-            cursor: pointer; margin-bottom: 20px; transition: opacity 0.2s;
+            cursor: pointer; margin-bottom: 25px; transition: opacity 0.2s;
         }
-        .now-btn:active { opacity: 0.8; }
 
         .label { font-size: 0.75rem; font-weight: 700; color: #999; text-transform: uppercase; margin-bottom: 10px; text-align: left; }
         
-        /* Interval Grid */
-        .interval-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+        /* Interval Grid & Input */
+        .interval-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
         .int-btn { 
-            padding: 12px 0; font-size: 1rem; font-weight: 700; background: #fff; 
+            padding: 15px; font-size: 1rem; font-weight: 700; background: #fff; 
             border: 1px solid #eee; border-radius: 15px; cursor: pointer; color: #444;
         }
         .int-btn.active { background: #111; color: #fff; border-color: #111; }
 
-        /* Result Display */
+        .input-wrapper { 
+            display: flex; align-items: center; justify-content: center; 
+            background: #fff; border: 1px solid #eee; border-radius: 15px; height: 52px; margin-bottom: 20px;
+        }
+        .input-wrapper.active { background: #111; border-color: #111; color: #fff; }
+        .int-input { 
+            width: 40px; border: none; outline: none; background: transparent; 
+            font-size: 1rem; font-weight: 700; color: inherit; text-align: right; -webkit-appearance: none;
+        }
+        .int-unit { font-size: 0.9rem; font-weight: 700; margin-left: 4px; }
+
+        /* Result Box */
         .result-box { 
-            background: #fafafa; border-radius: 15px; padding: 30px 15px; margin-bottom: 20px;
+            background: #fafafa; border-radius: 15px; padding: 25px 15px; margin-bottom: 15px;
             display: flex; flex-direction: column; justify-content: center; border: 1px solid #f0f0f0;
         }
         .res-label { font-size: 0.75rem; color: #999; margin-bottom: 5px; font-weight: 700; text-transform: uppercase; }
@@ -41,12 +50,19 @@
 
         .clear-btn { 
             width: 100%; padding: 12px; background: transparent; color: #bbb; 
-            border: none; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+            border: none; font-size: 0.8rem; font-weight: 600; cursor: pointer; margin-bottom: 10px;
         }
 
-        /* Footer */
-        .footer-group { border-top: 1px solid #f0f0f0; padding-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        /* Footer & Buttons */
+        .footer-group { display: flex; flex-direction: column; align-items: center; gap: 12px; border-top: 1px solid #f0f0f0; padding-top: 20px; }
+        .kofi-btn { background: #111; color: #fff; padding: 12px 24px; border-radius: 15px; text-decoration: none; font-weight: bold; font-size: 13px; }
+        .install-btn { background: #f0f0f0; color: #666; padding: 10px 20px; border-radius: 15px; border: none; cursor: pointer; font-size: 12px; font-weight: 700; }
         footer { font-size: 10px; color: #aaa; line-height: 1.4; padding-bottom: 15px; }
+
+        /* Modal */
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #fff; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; position: relative; }
+        .close-x { position: absolute; top: 12px; right: 18px; font-size: 22px; cursor: pointer; color: #ccc; }
     </style>
 </head>
 <body>
@@ -58,12 +74,16 @@
         
         <button class="now-btn" onclick="setNow()">I TOOK IT NOW</button>
 
-        <div class="label">Interval (Hours)</div>
+        <div class="label">Quick Select Interval</div>
         <div class="interval-grid">
-            <button class="int-btn" onclick="setInt(4, this)">4h</button>
-            <button class="int-btn active" onclick="setInt(6, this)">6h</button>
-            <button class="int-btn" onclick="setInt(8, this)">8h</button>
-            <button class="int-btn" onclick="setInt(12, this)">12h</button>
+            <button class="int-btn" onclick="setInt(4, this)">4 Hours</button>
+            <button class="int-btn active" id="defaultBtn" onclick="setInt(6, this)">6 Hours</button>
+        </div>
+
+        <div class="label">Custom Interval</div>
+        <div class="input-wrapper" id="customWrapper" onclick="focusInput()">
+            <input type="number" id="customInt" class="int-input" placeholder="3" oninput="handleInput(this)" inputmode="numeric">
+            <span class="int-unit">Hours later</span>
         </div>
 
         <div class="result-box">
@@ -71,10 +91,12 @@
             <div id="nextTime" class="res-time">--:--</div>
         </div>
 
-        <button class="clear-btn" onclick="reset()">Reset</button>
+        <button class="clear-btn" onclick="reset()">Reset All</button>
     </div>
 
     <div class="footer-group">
+        <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕ Support me on Ko-fi</a>
+        <button class="install-btn" onclick="showModal()">Add to Home Screen</button>
         <footer>
             No login / No tracking / No ads / Browser only<br>
             Privacy Policy<br>
@@ -83,9 +105,20 @@
     </div>
 </div>
 
+<div id="modal">
+    <div class="modal-content">
+        <span class="close-x" onclick="closeModal()">&times;</span>
+        <strong>📱 Install</strong><br><br>
+        <p><strong>🍏 iPhone (Safari):</strong><br>Tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.</p>
+        <p><strong>🤖 Android (Chrome):</strong><br>Tap <strong>Menu (⋮)</strong>, then <strong>Add to home screen</strong>.</p>
+    </div>
+</div>
+
 <script>
     let interval = 6;
     let startTime = null;
+    const wrapper = document.getElementById('customWrapper');
+    const input = document.getElementById('customInt');
 
     function setNow() {
         startTime = new Date();
@@ -94,13 +127,26 @@
 
     function setInt(h, btn) {
         interval = h;
+        input.value = "";
         document.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
+        wrapper.classList.remove('active');
         btn.classList.add('active');
         if (startTime) calculate();
     }
 
+    function focusInput() {
+        input.focus();
+        document.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
+        wrapper.classList.add('active');
+    }
+
+    function handleInput(el) {
+        interval = parseFloat(el.value) || 0;
+        if (startTime) calculate();
+    }
+
     function calculate() {
-        if (!startTime) return;
+        if (!startTime || interval <= 0) return;
         const next = new Date(startTime.getTime() + (interval * 60 * 60 * 1000));
         const hh = String(next.getHours()).padStart(2, '0');
         const mm = String(next.getMinutes()).padStart(2, '0');
@@ -109,8 +155,13 @@
 
     function reset() {
         startTime = null;
+        input.value = "";
         document.getElementById('nextTime').innerText = "--:--";
+        setInt(6, document.getElementById('defaultBtn'));
     }
+
+    function showModal() { document.getElementById('modal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
 </script>
 
 </body>
