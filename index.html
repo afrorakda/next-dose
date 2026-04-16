@@ -2,110 +2,238 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <title>Next Dose</title>
     
+    <link rel="icon" href="image_12.png">
     <link rel="apple-touch-icon" href="image_12.png">
-    
+
     <style>
-        /* Updated all main colors to #444 */
-        body { font-family: -apple-system, sans-serif; background: #fff; color: #444; margin: 0; display: flex; justify-content: center; -webkit-font-smoothing: antialiased; }
-        .container { width: 100%; max-width: 400px; padding: 25px 20px; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; min-height: 100vh; justify-content: space-between; }
+        :root { --main: #333; --bg: #fff; --accent: #eee; --input-bg: #fafafa; --radius: 15px; }
         
-        h1 { font-size: 2rem; font-weight: 800; margin: 0; letter-spacing: -1px; color: #444; }
-        .subtitle { font-size: 0.9rem; color: #888; margin: 5px 0 25px; }
-        
-        /* Main Button #444 */
-        .now-btn { width: 100%; padding: 20px; font-size: 1.2rem; font-weight: 800; background: #444; color: #fff; border: none; border-radius: 15px; cursor: pointer; margin-bottom: 30px; transition: opacity 0.2s; }
-        .now-btn:active { opacity: 0.8; }
+        * { 
+            -webkit-touch-callout: none !important; 
+            -webkit-user-select: none !important; 
+            user-select: none !important; 
+            -webkit-tap-highlight-color: transparent;
+            touch-action: pan-y;
+        }
 
-        .label { font-size: 0.75rem; font-weight: 700; color: #aaa; text-transform: uppercase; margin-bottom: 10px; text-align: left; }
-        
-        /* Grid Buttons */
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
-        .btn { padding: 15px 0; font-size: 1rem; font-weight: 700; background: #fff; border: 1px solid #eee; border-radius: 15px; cursor: pointer; color: #666; transition: 0.2s; }
-        /* Active Button #444 */
-        .btn.active { background: #444; color: #fff; border-color: #444; }
-        
-        .custom-in { width: 100%; border: none; outline: none; background: transparent; font: inherit; text-align: center; color: inherit; padding: 0; }
-        
-        .res-box { background: #fafafa; border-radius: 15px; padding: 30px 15px; border: 1px solid #f0f0f0; margin-bottom: 10px; }
-        .res-time { font-size: 3.5rem; font-weight: 800; letter-spacing: -2px; line-height: 1; color: #444; }
-        .res-ampm { font-size: 1.2rem; margin-left: 5px; color: #888; vertical-align: bottom; }
-        
-        .clear { width: 100%; padding: 15px; background: none; border: none; color: #ccc; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
-        
-        /* Footer Group #444 */
-        .footer-group { border-top: 1px solid #f0f0f0; padding-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-        .kofi { background: #444; color: #fff; padding: 12px 24px; border-radius: 15px; text-decoration: none; font-weight: bold; font-size: 13px; }
-        .inst-btn { background: #f0f0f0; color: #888; padding: 10px 20px; border-radius: 15px; border: none; font-size: 12px; font-weight: 700; cursor: pointer; }
-        footer { font-size: 10px; color: #ccc; line-height: 1.4; padding-bottom: 20px; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: var(--bg); display: flex; justify-content: center; 
+            padding: 0; margin: 0; color: var(--main); -webkit-font-smoothing: antialiased; 
+        }
 
-        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; }
-        .m-content { background: #fff; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; position: relative; }
-        .m-box { background: #f8f8f8; padding: 15px; border-radius: 15px; text-align: left; margin-top: 15px; font-size: 0.9rem; line-height: 1.6; }
-        .close { position: absolute; top: 12px; right: 18px; font-size: 22px; cursor: pointer; color: #ccc; }
+        .container { 
+            width: 100%; max-width: 380px; min-height: 100vh; 
+            display: flex; flex-direction: column; position: relative; 
+            padding: 20px; box-sizing: border-box; 
+        }
+
+        /* メインユニット：中央よりやや下へ配置 */
+        .main-unit {
+            margin-top: 8vh;
+            margin-bottom: auto; 
+            width: 100%;
+        }
+        
+        header { 
+            display: flex; justify-content: space-between; align-items: start; 
+            margin-bottom: 25px; 
+        }
+        .title-group h1 { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.8px; margin: 0; }
+        .subtitle { font-size: 0.8rem; color: #777; font-weight: 500; margin-top: 4px; }
+
+        .hub-link { 
+            text-decoration: none; font-size: 0.7rem; font-weight: 800; color: #999; 
+            background: transparent; border: 1px solid #ddd; padding: 4px 8px; border-radius: 10px; 
+            transition: 0.2s; cursor: pointer;
+        }
+        .hub-link:active { transform: scale(0.95); background: var(--accent); color: var(--main); }
+
+        /* メインアクション：START NOW */
+        .now-btn { 
+            width: 100%; padding: 22px; font-size: 1.3rem; font-weight: 900; 
+            background-color: var(--main); color: #fff; border: none; 
+            border-radius: var(--radius); cursor: pointer; margin-bottom: 25px; 
+            transition: 0.2s; -webkit-appearance: none;
+        }
+        .now-btn:active { transform: scale(0.97); opacity: 0.9; }
+
+        .label { font-size: 0.7rem; font-weight: 800; color: #aaa; text-transform: uppercase; margin-bottom: 8px; text-align: left; }
+        
+        /* インターバル選択グリッド */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+        .btn { 
+            padding: 14px 0; font-size: 1rem; font-weight: 800; background: var(--bg); 
+            border: 2px solid var(--accent); border-radius: var(--radius); cursor: pointer; 
+            color: #666; transition: 0.2s; 
+        }
+        .btn.active { background: var(--main); color: #fff; border-color: var(--main); }
+        
+        .custom-in { 
+            width: 100%; border: none; outline: none; background: transparent; 
+            font-size: 0.9rem; font-weight: 800; text-align: center; color: inherit; 
+            padding: 0; -webkit-appearance: none; -webkit-text-fill-color: currentColor;
+        }
+
+        /* 結果表示ボックス */
+        .res-box { 
+            background: var(--input-bg); border-radius: var(--radius); 
+            padding: 25px 15px; border: 2px solid var(--accent); margin-bottom: 10px; text-align: center;
+        }
+        .res-time { font-size: 3.5rem; font-weight: 900; letter-spacing: -2px; line-height: 1; color: var(--main); font-variant-numeric: tabular-nums; }
+        .res-ampm { font-size: 1.2rem; margin-left: 6px; color: #888; vertical-align: baseline; font-weight: 700; }
+        
+        .clear-all { 
+            width: 100%; padding: 14px; background: none; border: none; 
+            color: #bbb; font-size: 0.85rem; font-weight: 800; cursor: pointer; 
+            transition: 0.2s;
+        }
+        .clear-all:active { color: var(--main); }
+
+        /* 鉄壁フッター */
+        footer { margin-top: auto; padding: 20px 0 30px; text-align: center; border-top: 1px solid #f5f5f5; font-size: 11px; color: #666; font-weight: 600; }
+        .footer-btns { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        
+        .outline-btn { 
+            background: #fff; color: var(--main); border: 2px solid var(--main); 
+            padding: 12px; border-radius: var(--radius); text-decoration: none; 
+            font-weight: 800; font-size: 13px; display: flex; align-items: center; 
+            justify-content: center; cursor: pointer; transition: 0.2s;
+        }
+        .outline-btn:active { background: var(--accent); transform: scale(0.97); }
+
+        .footer-info { line-height: 1.6; }
+        .footer-info a { color: inherit; text-decoration: underline; display: inline-block; padding: 4px; }
+
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: #fff; width: 85%; max-width: 340px; padding: 30px; border-radius: var(--radius); position: relative; text-align: left; }
+        .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #888; cursor: pointer; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
+
 <div class="container">
-    <div>
-        <h1>Next Dose</h1>
-        <p class="subtitle">Forget the math, just take your meds.</p>
-        <button class="now-btn" onclick="setNow()">START NOW</button>
-        <div class="label">Select Interval (Hours)</div>
+    <div class="main-unit">
+        <header>
+            <div class="title-group">
+                <h1>Next Dose</h1>
+                <p class="subtitle">Forget the math, just take your meds.</p>
+            </div>
+            <a href="https://afrorakda.github.io/" class="hub-link">🏠 Hub</a>
+        </header>
+        
+        <button class="now-btn" onclick="setNow()">TAKEN NOW</button>
+        
+        <div class="label">Interval (Hours)</div>
         <div class="grid">
             <button class="btn" onclick="setInt(2, this)">2h</button>
             <button class="btn" onclick="setInt(4, this)">4h</button>
             <button class="btn active" id="def" onclick="setInt(6, this)">6h</button>
             <button class="btn" onclick="setInt(8, this)">8h</button>
+            <button class="btn" onclick="setInt(12, this)">12h</button>
             <button class="btn" id="cW" onclick="focusIn()">
                 <input type="number" id="cI" class="custom-in" placeholder="Custom" oninput="hIn(this)" inputmode="numeric">
             </button>
         </div>
+
         <div class="res-box">
-            <div class="label" style="text-align:center;margin-bottom:5px">Next Dose At</div>
+            <div class="label" style="text-align:center; margin-bottom:10px">Next Dose At</div>
             <div id="nT" class="res-time">--:--<span class="res-ampm" id="ap"></span></div>
         </div>
-        <button class="clear" onclick="reset()">Reset All</button>
+        
+        <button class="clear-all" onclick="reset()">Clear & Reset</button>
     </div>
-    <div class="footer-group">
-        <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi">☕ Support me on Ko-fi</a>
-        <button class="inst-btn" onclick="sM()">Add to Home Screen</button>
-        <footer>No login / No tracking / No ads / Browser only<br>Privacy Policy<br>afrorakda © 2026</footer>
+
+    <footer id="dynamic-footer">
+        <div class="footer-btns">
+            <a href="https://ko-fi.com/afrorakda" target="_blank" class="outline-btn" id="kofi-link">☕️buy me a coffee</a>
+            <button class="outline-btn" onclick="showModal()" id="install-text">Add to Home Screen</button>
+        </div>
+        <div class="footer-info">
+            No login / No tracking / No ads / Browser only<br>
+            <a href="https://afrorakda.com/privacy/" id="privacy-link">Privacy Policy</a><br>
+            <span id="copyright">Next Dose © 2026</span>
+        </div>
+    </footer>
+</div>
+
+<div id="modal" onclick="hideModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-x" onclick="hideModal()">×</span>
+        <h3 id="modal-title" style="margin-top:0;">Install App</h3>
+        <p id="modal-msg" style="font-size:14px; font-weight:600;">Add to your home screen for easy access.</p>
+        <p id="modal-ios" style="font-size:13px; color:#666;">iOS: Tap Share then 'Add to Home Screen'.</p>
+        <p id="modal-android" style="font-size:13px; color:#666;">Android: Tap Menu then 'Add to Home screen'.</p>
     </div>
 </div>
-<div id="modal" onclick="cM()"><div class="m-content" onclick="event.stopPropagation()">
-    <span class="close" onclick="cM()">&times;</span>
-    <strong>📱 Install</strong><br><span style="font-size:0.8rem;color:#999">Add to your home screen.</span>
-    <div class="m-box">
-        🍏 <strong>iPhone (Safari):</strong><br>Tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.<br><br>
-        🤖 <strong>Android (Chrome):</strong><br>Tap <strong>Menu (⋮)</strong>, then <strong>Add to home screen</strong>.
-    </div>
-</div></div>
+
 <script>
     let iv = 6, sT = null;
     const cI = document.getElementById('cI'), cW = document.getElementById('cW');
-    function setNow() { sT = new Date(); calc(); }
+    
+    function setNow() { 
+        sT = new Date(); 
+        calc(); 
+        // 視覚的フィードバック
+        const btn = document.querySelector('.now-btn');
+        const originalText = btn.innerText;
+        btn.innerText = "RECORDED!";
+        setTimeout(() => btn.innerText = originalText, 1000);
+    }
+
     function setInt(h, b) {
-        iv = h; cI.value = "";
+        iv = h; 
+        if(b !== cW) cI.value = "";
         document.querySelectorAll('.btn').forEach(x => x.classList.remove('active'));
         b.classList.add('active');
         if (sT) calc();
     }
+
     function focusIn() { cI.focus(); setInt(parseFloat(cI.value)||0, cW); }
     function hIn(e) { iv = parseFloat(e.value) || 0; if (sT) calc(); }
+
     function calc() {
         if (!sT || iv <= 0) return;
         const n = new Date(sT.getTime() + (iv * 3600000));
-        let h = n.getHours(), m = String(n.getMinutes()).padStart(2, '0'), ap = h >= 12 ? 'PM' : 'AM';
+        let h = n.getHours(), m = String(n.getMinutes()).padStart(2, '0'), ampm = h >= 12 ? 'PM' : 'AM';
         h = h % 12 || 12;
         document.getElementById('nT').firstChild.textContent = h + ":" + m;
-        document.getElementById('ap').innerText = ap;
+        document.getElementById('ap').innerText = ampm;
     }
-    function reset() { sT = null; cI.value = ""; document.getElementById('nT').firstChild.textContent = "--:--"; document.getElementById('ap').innerText = ""; setInt(6, document.getElementById('def')); }
-    function sM() { document.getElementById('modal').style.display = 'flex'; }
-    function cM() { document.getElementById('modal').style.display = 'none'; }
+
+    function reset() { 
+        sT = null; cI.value = ""; 
+        document.getElementById('nT').firstChild.textContent = "--:--"; 
+        document.getElementById('ap').innerText = ""; 
+        setInt(6, document.getElementById('def')); 
+    }
+
+    function showModal() { document.getElementById('modal').style.display = 'flex'; }
+    function hideModal() { document.getElementById('modal').style.display = 'none'; }
+
+    async function loadFooter() {
+        try {
+            const response = await fetch('footer.json');
+            if (!response.ok) return;
+            const data = await response.json();
+            if(data.kofi) { document.getElementById('kofi-link').href = data.kofi.url; document.getElementById('kofi-link').textContent = data.kofi.text; }
+            if(data.install) {
+                document.getElementById('install-text').textContent = data.install.text;
+                document.getElementById('modal-title').textContent = data.install.title;
+                document.getElementById('modal-msg').textContent = data.install.msg;
+                document.getElementById('modal-ios').textContent = data.install.ios;
+                document.getElementById('modal-android').textContent = data.install.android;
+            }
+            if(data.privacy) document.getElementById('privacy-link').href = data.privacy.url;
+        } catch (e) { console.error("Footer update skipped."); }
+    }
+    window.addEventListener('DOMContentLoaded', loadFooter);
 </script>
+
 </body>
 </html>
