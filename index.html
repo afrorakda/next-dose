@@ -74,19 +74,25 @@
             padding: 14px 0; font-size: 1.1rem; font-weight: 800; background: var(--bg); 
             border: 2px solid var(--accent); border-radius: var(--radius); cursor: pointer; 
             color: #666; transition: 0.2s; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; /* センタリングの強制 */
         }
         .btn.active { background: #333; color: #fff; border-color: #333; }
         
-        .custom-in-wrapper { display: flex; align-items: center; justify-content: center; width: 100%; }
+        /* Edit入力エリア：常に中央を維持するロジック */
+        .custom-in-wrapper { position: relative; display: flex; align-items: baseline; justify-content: center; width: 100%; height: 100%; }
         .custom-in { 
             width: 100%; border: none; outline: none; background: transparent; 
             font-size: 1.1rem; font-weight: 800; text-align: center; color: inherit; 
             padding: 0; -webkit-appearance: none; -webkit-text-fill-color: currentColor; opacity: 1 !important;
         }
-        /* 数字がある時だけ単位を小さく表示 */
-        .custom-unit { font-size: 0.7rem; font-weight: 800; margin-left: 1px; display: none; }
+        /* 数字がある時だけ単位を表示 */
+        .custom-unit { 
+            font-size: 0.7rem; font-weight: 800; color: inherit; display: none; margin-left: -5px; /* 数字と少し重ねる */
+            position: relative; left: 2px;
+        }
         .has-val .custom-unit { display: inline; }
-        .has-val .custom-in { width: auto; text-align: right; }
+        /* 入力エリアを数字の桁数に合わせて可動式にする */
+        .has-val .custom-in { width: auto; max-width: 60px; text-align: center; }
 
         .res-box { 
             background: var(--input-bg); border-radius: var(--radius); 
@@ -189,6 +195,7 @@
     const cI = document.getElementById('cI'), cW = document.getElementById('cW'), cWrapper = document.getElementById('cWrapper');
     
     window.onload = () => {
+        // 1. インターバルの復元
         const savedIv = localStorage.getItem('nd_interval');
         const savedCustomIv = localStorage.getItem('nd_custom_val');
         if (savedIv) {
@@ -205,6 +212,7 @@
             setInt(6, document.getElementById('def'));
         }
 
+        // 2. 最終服用時刻の復元
         const savedTaken = localStorage.getItem('nd_last_taken');
         if (savedTaken) {
             sT = new Date(savedTaken);
@@ -236,6 +244,7 @@
         lLabel.style.color = "#4CAF50";
     }
 
+    // 単位「h」の表示ロジックを修正
     function updateCustomUI(val) {
         if(val.length > 0) cWrapper.classList.add('has-val');
         else cWrapper.classList.remove('has-val');
