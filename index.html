@@ -53,15 +53,22 @@
         }
         .hub-link:active { transform: scale(0.95); background: var(--accent); color: var(--main); }
 
+        /* TAKEN NOW: 黄金配置 & フィードバック強化 */
+        .now-btn-wrapper { width: 100%; margin-bottom: 25px; text-align: center; }
         .now-btn { 
             width: 100%; padding: 22px; font-size: 1.3rem; font-weight: 900; 
-            background-color: #333; color: #fff; border: none; 
-            border-radius: var(--radius); cursor: pointer; margin-bottom: 25px; 
-            transition: 0.2s; -webkit-appearance: none;
+            background-color: #333; color: #fff; border: 2px solid #333; 
+            border-radius: var(--radius); cursor: pointer;
+            transition: all 0.1s ease; -webkit-appearance: none;
         }
-        .now-btn:active { transform: scale(0.97); opacity: 0.9; }
+        .now-btn:active { 
+            background-color: #fff; color: #333; 
+            transform: scale(0.97) translateY(2px);
+        }
+        /* コピー成功時のフラッシュ演出 (今回は使用せず物理押し込みに集中) */
+        
+        .last-taken-label { font-size: 0.7rem; color: #999; font-weight: 700; display: block; margin-top: 8px; }
 
-        /* Label visibility enhanced */
         .label { font-size: 0.85rem; font-weight: 800; color: var(--text-mid); text-transform: uppercase; margin-bottom: 10px; text-align: left; letter-spacing: 0.5px; }
         
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 25px; }
@@ -72,13 +79,15 @@
         }
         .btn.active { background: #333; color: #fff; border-color: #333; }
         
+        .custom-in-wrapper { display: flex; align-items: center; justify-content: center; color: inherit; }
         .custom-in { 
-            width: 100%; border: none; outline: none; background: transparent; 
-            font-size: 1rem; font-weight: 800; text-align: center; color: inherit; 
+            width: 45px; border: none; outline: none; background: transparent; 
+            font-size: 1.1rem; font-weight: 800; text-align: right; color: inherit; 
             padding: 0; -webkit-appearance: none; -webkit-text-fill-color: currentColor;
         }
+        .custom-unit { font-size: 0.8rem; font-weight: 800; margin-left: 1px; display: none; }
+        .btn.active .custom-unit { display: inline; } /* 選択中のみ単位を表示 */
 
-        /* Result Area visibility maxed */
         .res-box { 
             background: var(--input-bg); border-radius: var(--radius); 
             padding: 30px 15px; border: 2px solid #ddd; margin-bottom: 15px; text-align: center;
@@ -86,7 +95,6 @@
         .res-time { font-size: 4rem; font-weight: 900; letter-spacing: -2px; line-height: 1; color: #000; font-variant-numeric: tabular-nums; }
         .res-ampm { font-size: 1.5rem; margin-left: 8px; color: #000; vertical-align: baseline; font-weight: 900; }
         
-        /* Reset button: Discreet but functional */
         .clear-all { 
             width: 100%; padding: 15px; background: none; border: none; 
             color: #bbb; font-size: 0.85rem; font-weight: 800; cursor: pointer; 
@@ -126,7 +134,10 @@
             <a href="https://afrorakda.github.io/" class="hub-link">🏠 Hub</a>
         </header>
         
-        <button class="now-btn" id="takeBtn" onclick="setNow()">TAKEN NOW</button>
+        <div class="now-btn-wrapper">
+            <button class="now-btn" id="takeBtn" onclick="setNow()">TAKEN NOW</button>
+            <span id="lastTakenLabel" class="last-taken-label">Last Taken: None</span>
+        </div>
         
         <div class="label">Interval (Hours)</div>
         <div class="grid">
@@ -136,7 +147,10 @@
             <button class="btn" onclick="setInt(8, this)">8h</button>
             <button class="btn" onclick="setInt(12, this)">12h</button>
             <button class="btn" id="cW" onclick="focusIn()">
-                <input type="number" id="cI" class="custom-in" placeholder="Custom" oninput="hIn(this)" inputmode="numeric">
+                <div class="custom-in-wrapper">
+                    <input type="number" id="cI" class="custom-in" placeholder="Custom" oninput="hIn(this)" inputmode="numeric">
+                    <span class="custom-unit">h</span>
+                </div>
             </button>
         </div>
 
@@ -175,12 +189,33 @@
     let iv = 6, sT = null, resetClickCount = 0;
     const cI = document.getElementById('cI'), cW = document.getElementById('cW');
     
+    window.onload = () => {
+        // 保存データの復元（もしあれば）
+        const savedTaken = localStorage.getItem('next_dose_last_taken');
+        if (savedTaken) {
+            sT = new Date(savedTaken);
+            updateLastTakenLabel(sT);
+            calc();
+        }
+        area.focus(); // Simple Memoの残骸。不要。
+    };
+
     function setNow() { 
         sT = new Date(); 
+        localStorage.setItem('next_dose_last_taken', sT.toISOString());
+        updateLastTakenLabel(sT);
         calc(); 
         const btn = document.getElementById('takeBtn');
+        const originalText = btn.innerText;
         btn.innerText = "RECORDED!";
-        setTimeout(() => btn.innerText = "TAKEN NOW", 1000);
+        setTimeout(() => btn.innerText = originalText, 1000);
+    }
+
+    function updateLastTakenLabel(date) {
+        let h = date.getHours(), m = String(date.getMinutes()).padStart(2, '0');
+        const lLabel = document.getElementById('lastTakenLabel');
+        lLabel.innerText = "Last Taken: " + h + ":" + m;
+        lLabel.style.color = "#4CAF50"; // 保存時は緑にする
     }
 
     function setInt(h, b) {
@@ -224,8 +259,12 @@
 
     function reset() { 
         sT = null; cI.value = ""; 
+        localStorage.removeItem('next_dose_last_taken');
         document.getElementById('nT').firstChild.textContent = "--:--"; 
         document.getElementById('ap').innerText = ""; 
+        const lLabel = document.getElementById('lastTakenLabel');
+        lLabel.innerText = "Last Taken: None";
+        lLabel.style.color = "#999";
         setInt(6, document.getElementById('def')); 
     }
 
