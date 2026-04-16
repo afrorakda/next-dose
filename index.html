@@ -53,7 +53,6 @@
         }
         .hub-link:active { transform: scale(0.95); background: var(--accent); color: var(--main); }
 
-        /* TAKEN NOW: 黄金配置 & フィードバック強化 */
         .now-btn-wrapper { width: 100%; margin-bottom: 25px; text-align: center; }
         .now-btn { 
             width: 100%; padding: 22px; font-size: 1.3rem; font-weight: 900; 
@@ -65,9 +64,8 @@
             background-color: #fff; color: #333; 
             transform: scale(0.97) translateY(2px);
         }
-        /* コピー成功時のフラッシュ演出 (今回は使用せず物理押し込みに集中) */
         
-        .last-taken-label { font-size: 0.7rem; color: #999; font-weight: 700; display: block; margin-top: 8px; }
+        .last-taken-label { font-size: 0.75rem; color: #999; font-weight: 800; display: block; margin-top: 8px; }
 
         .label { font-size: 0.85rem; font-weight: 800; color: var(--text-mid); text-transform: uppercase; margin-bottom: 10px; text-align: left; letter-spacing: 0.5px; }
         
@@ -83,10 +81,10 @@
         .custom-in { 
             width: 45px; border: none; outline: none; background: transparent; 
             font-size: 1.1rem; font-weight: 800; text-align: right; color: inherit; 
-            padding: 0; -webkit-appearance: none; -webkit-text-fill-color: currentColor;
+            padding: 0; -webkit-appearance: none; -webkit-text-fill-color: currentColor; opacity: 1 !important;
         }
         .custom-unit { font-size: 0.8rem; font-weight: 800; margin-left: 1px; display: none; }
-        .btn.active .custom-unit { display: inline; } /* 選択中のみ単位を表示 */
+        .btn.active .custom-unit { display: inline; }
 
         .res-box { 
             background: var(--input-bg); border-radius: var(--radius); 
@@ -102,7 +100,6 @@
         }
         .clear-all.confirm { color: #e63946; }
 
-        /* Footer */
         footer { margin-top: auto; padding: 20px 0 30px; text-align: center; border-top: 1px solid #f5f5f5; font-size: 11px; color: #666; font-weight: 600; }
         .footer-btns { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         
@@ -141,11 +138,11 @@
         
         <div class="label">Interval (Hours)</div>
         <div class="grid">
-            <button class="btn" onclick="setInt(2, this)">2h</button>
-            <button class="btn" onclick="setInt(4, this)">4h</button>
-            <button class="btn active" id="def" onclick="setInt(6, this)">6h</button>
-            <button class="btn" onclick="setInt(8, this)">8h</button>
-            <button class="btn" onclick="setInt(12, this)">12h</button>
+            <button class="btn" id="btn-2" onclick="setInt(2, this)">2h</button>
+            <button class="btn" id="btn-4" onclick="setInt(4, this)">4h</button>
+            <button class="btn" id="def" onclick="setInt(6, this)">6h</button>
+            <button class="btn" id="btn-8" onclick="setInt(8, this)">8h</button>
+            <button class="btn" id="btn-12" onclick="setInt(12, this)">12h</button>
             <button class="btn" id="cW" onclick="focusIn()">
                 <div class="custom-in-wrapper">
                     <input type="number" id="cI" class="custom-in" placeholder="Custom" oninput="hIn(this)" inputmode="numeric">
@@ -162,7 +159,7 @@
         <button class="clear-all" id="resetBtn" onclick="resetConfirm()">Reset All</button>
     </div>
 
-    <footer id="dynamic-footer">
+    <footer>
         <div class="footer-btns">
             <a href="https://ko-fi.com/afrorakda" target="_blank" class="outline-btn" id="kofi-link">☕️buy me a coffee</a>
             <button class="outline-btn" onclick="showModal()" id="install-text">Add to Home Screen</button>
@@ -190,19 +187,40 @@
     const cI = document.getElementById('cI'), cW = document.getElementById('cW');
     
     window.onload = () => {
-        // 保存データの復元（もしあれば）
-        const savedTaken = localStorage.getItem('next_dose_last_taken');
+        // 1. インターバルの復元
+        const savedIv = localStorage.getItem('nd_interval');
+        const savedCustomIv = localStorage.getItem('nd_custom_val');
+        if (savedIv) {
+            iv = parseFloat(savedIv);
+            if (savedCustomIv && iv === parseFloat(savedCustomIv)) {
+                cI.value = savedCustomIv;
+                setInt(iv, cW);
+            } else {
+                const btn = document.getElementById('btn-' + iv) || document.getElementById('def');
+                setInt(iv, btn);
+            }
+        } else {
+            setInt(6, document.getElementById('def'));
+        }
+
+        // 2. 最終服用時刻の復元
+        const savedTaken = localStorage.getItem('nd_last_taken');
         if (savedTaken) {
             sT = new Date(savedTaken);
             updateLastTakenLabel(sT);
             calc();
         }
-        area.focus(); // Simple Memoの残骸。不要。
     };
+
+    function format12h(date) {
+        let h = date.getHours(), m = String(date.getMinutes()).padStart(2, '0'), ap = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        return h + ":" + m + " " + ap;
+    }
 
     function setNow() { 
         sT = new Date(); 
-        localStorage.setItem('next_dose_last_taken', sT.toISOString());
+        localStorage.setItem('nd_last_taken', sT.toISOString());
         updateLastTakenLabel(sT);
         calc(); 
         const btn = document.getElementById('takeBtn');
@@ -212,30 +230,40 @@
     }
 
     function updateLastTakenLabel(date) {
-        let h = date.getHours(), m = String(date.getMinutes()).padStart(2, '0');
         const lLabel = document.getElementById('lastTakenLabel');
-        lLabel.innerText = "Last Taken: " + h + ":" + m;
-        lLabel.style.color = "#4CAF50"; // 保存時は緑にする
+        lLabel.innerText = "Last Taken: " + format12h(date);
+        lLabel.style.color = "#4CAF50";
     }
 
     function setInt(h, b) {
         iv = h; 
-        if(b !== cW) cI.value = "";
+        localStorage.setItem('nd_interval', iv);
+        if(b !== cW) {
+            cI.value = "";
+            localStorage.removeItem('nd_custom_val');
+        } else {
+            localStorage.setItem('nd_custom_val', cI.value);
+        }
         document.querySelectorAll('.btn').forEach(x => x.classList.remove('active'));
         b.classList.add('active');
         if (sT) calc();
     }
 
     function focusIn() { cI.focus(); setInt(parseFloat(cI.value)||0, cW); }
-    function hIn(e) { iv = parseFloat(e.value) || 0; if (sT) calc(); }
+    function hIn(e) { 
+        iv = parseFloat(e.value) || 0; 
+        localStorage.setItem('nd_interval', iv);
+        localStorage.setItem('nd_custom_val', e.value);
+        if (sT) calc(); 
+    }
 
     function calc() {
         if (!sT || iv <= 0) return;
         const n = new Date(sT.getTime() + (iv * 3600000));
-        let h = n.getHours(), m = String(n.getMinutes()).padStart(2, '0'), ampm = h >= 12 ? 'PM' : 'AM';
+        let h = n.getHours(), m = String(n.getMinutes()).padStart(2, '0'), ap = h >= 12 ? 'PM' : 'AM';
         h = h % 12 || 12;
         document.getElementById('nT').firstChild.textContent = h + ":" + m;
-        document.getElementById('ap').innerText = ampm;
+        document.getElementById('ap').innerText = ap;
     }
 
     function resetConfirm() {
@@ -259,7 +287,7 @@
 
     function reset() { 
         sT = null; cI.value = ""; 
-        localStorage.removeItem('next_dose_last_taken');
+        localStorage.clear();
         document.getElementById('nT').firstChild.textContent = "--:--"; 
         document.getElementById('ap').innerText = ""; 
         const lLabel = document.getElementById('lastTakenLabel');
