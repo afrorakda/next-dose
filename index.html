@@ -73,18 +73,20 @@
         .btn { 
             padding: 14px 0; font-size: 1.1rem; font-weight: 800; background: var(--bg); 
             border: 2px solid var(--accent); border-radius: var(--radius); cursor: pointer; 
-            color: #666; transition: 0.2s; 
+            color: #666; transition: 0.2s; position: relative; overflow: hidden;
         }
         .btn.active { background: #333; color: #fff; border-color: #333; }
         
-        .custom-in-wrapper { display: flex; align-items: center; justify-content: center; color: inherit; }
+        .custom-in-wrapper { display: flex; align-items: center; justify-content: center; width: 100%; }
         .custom-in { 
-            width: 45px; border: none; outline: none; background: transparent; 
-            font-size: 1.1rem; font-weight: 800; text-align: right; color: inherit; 
+            width: 100%; border: none; outline: none; background: transparent; 
+            font-size: 1.1rem; font-weight: 800; text-align: center; color: inherit; 
             padding: 0; -webkit-appearance: none; -webkit-text-fill-color: currentColor; opacity: 1 !important;
         }
-        .custom-unit { font-size: 0.8rem; font-weight: 800; margin-left: 1px; display: none; }
-        .btn.active .custom-unit { display: inline; }
+        /* 数字がある時だけ単位を小さく表示 */
+        .custom-unit { font-size: 0.7rem; font-weight: 800; margin-left: 1px; display: none; }
+        .has-val .custom-unit { display: inline; }
+        .has-val .custom-in { width: auto; text-align: right; }
 
         .res-box { 
             background: var(--input-bg); border-radius: var(--radius); 
@@ -144,8 +146,8 @@
             <button class="btn" id="btn-8" onclick="setInt(8, this)">8h</button>
             <button class="btn" id="btn-12" onclick="setInt(12, this)">12h</button>
             <button class="btn" id="cW" onclick="focusIn()">
-                <div class="custom-in-wrapper">
-                    <input type="number" id="cI" class="custom-in" placeholder="Custom" oninput="hIn(this)" inputmode="numeric">
+                <div class="custom-in-wrapper" id="cWrapper">
+                    <input type="number" id="cI" class="custom-in" placeholder="Edit" oninput="hIn(this)" inputmode="numeric">
                     <span class="custom-unit">h</span>
                 </div>
             </button>
@@ -184,16 +186,16 @@
 
 <script>
     let iv = 6, sT = null, resetClickCount = 0;
-    const cI = document.getElementById('cI'), cW = document.getElementById('cW');
+    const cI = document.getElementById('cI'), cW = document.getElementById('cW'), cWrapper = document.getElementById('cWrapper');
     
     window.onload = () => {
-        // 1. インターバルの復元
         const savedIv = localStorage.getItem('nd_interval');
         const savedCustomIv = localStorage.getItem('nd_custom_val');
         if (savedIv) {
             iv = parseFloat(savedIv);
             if (savedCustomIv && iv === parseFloat(savedCustomIv)) {
                 cI.value = savedCustomIv;
+                updateCustomUI(savedCustomIv);
                 setInt(iv, cW);
             } else {
                 const btn = document.getElementById('btn-' + iv) || document.getElementById('def');
@@ -203,7 +205,6 @@
             setInt(6, document.getElementById('def'));
         }
 
-        // 2. 最終服用時刻の復元
         const savedTaken = localStorage.getItem('nd_last_taken');
         if (savedTaken) {
             sT = new Date(savedTaken);
@@ -235,14 +236,21 @@
         lLabel.style.color = "#4CAF50";
     }
 
+    function updateCustomUI(val) {
+        if(val.length > 0) cWrapper.classList.add('has-val');
+        else cWrapper.classList.remove('has-val');
+    }
+
     function setInt(h, b) {
         iv = h; 
         localStorage.setItem('nd_interval', iv);
         if(b !== cW) {
             cI.value = "";
+            updateCustomUI("");
             localStorage.removeItem('nd_custom_val');
         } else {
             localStorage.setItem('nd_custom_val', cI.value);
+            updateCustomUI(cI.value);
         }
         document.querySelectorAll('.btn').forEach(x => x.classList.remove('active'));
         b.classList.add('active');
@@ -250,8 +258,10 @@
     }
 
     function focusIn() { cI.focus(); setInt(parseFloat(cI.value)||0, cW); }
+    
     function hIn(e) { 
         iv = parseFloat(e.value) || 0; 
+        updateCustomUI(e.value);
         localStorage.setItem('nd_interval', iv);
         localStorage.setItem('nd_custom_val', e.value);
         if (sT) calc(); 
@@ -287,6 +297,7 @@
 
     function reset() { 
         sT = null; cI.value = ""; 
+        updateCustomUI("");
         localStorage.clear();
         document.getElementById('nT').firstChild.textContent = "--:--"; 
         document.getElementById('ap').innerText = ""; 
